@@ -5,11 +5,11 @@
 
 [node name="Unit" type="Node2D"]
 use_parent_material = true
+z_index = 10
 script = ExtResource( 2 )
 
 [node name="Sprite" type="Sprite" parent="."]
 position = Vector2( 0, -16 )
-z_index = 10
 texture = ExtResource( 1 )
 vframes = 4
 hframes = 7

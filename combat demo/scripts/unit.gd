@@ -3,8 +3,15 @@ class_name Unit
 
 var is_active = false
 signal EndTurn
+signal StartTurn
 
-func _input(event):
-	if is_active:
-		if event.is_action_pressed("EndTurn"):
-			emit_signal("EndTurn")
+func end_turn():
+	deselect()
+	is_active = false
+
+func start_turn():	
+	select()
+	is_active = true
+
+
+

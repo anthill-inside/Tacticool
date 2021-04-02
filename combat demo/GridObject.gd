@@ -9,6 +9,14 @@ export var selection_material = "res://combat demo/resources/Selected_Shader.tre
 
 var  my_cell : Vector2
 
+signal ObjectMoved(start_cell, new_cell, obj)
+
+func move_object(destination):
+	var start_cell = my_cell
+	position = destination
+	snap_to_grid()
+	emit_signal("ObjectMoved", start_cell, my_cell, self)
+
 func select():
 	$Sprite.material = load(selection_material)
 	
