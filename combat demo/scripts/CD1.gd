@@ -7,25 +7,10 @@ var current_unit
 onready var magma = $PathBlocked
 onready var path = $Path
 onready var camera = $TestCamera
-var astar := AStar2D.new()
+var astar := AStarAP.new()
 
 
 
-func calculate_point_path(start: Vector2, end: Vector2) -> PoolVector2Array:
-	# With the AStar algorithm, we have to use the points' indices to get a path. This is why we
-	# need a reliable way to calculate an index given some input coordinates.
-	# Our Grid.as_index() method does just that.
-	if start.x < 0 || start.y < 0 || end.x < 0 || end.y < 0:
-		return PoolVector2Array()
-	var start_index: int = cell_int_index(start)
-	var end_index: int = cell_int_index(end)
-	# We just ensure that the AStar graph has both points defined. If not, we return an empty
-	# PoolVector2Array() to avoid errors.
-	if astar.has_point(start_index) and astar.has_point(end_index):
-		# The AStar2D object then finds the best path between the two indices.
-		return astar.get_point_path(start_index, end_index)
-	else:
-		return PoolVector2Array()
 
 
 func draw_path(points):
@@ -40,6 +25,18 @@ func draw_path(points):
 	for i in line_points.size():
 		line_points[i] = line_points[i] * MainCombatDemo.cell_size + MainCombatDemo.half_cell
 	l2d.points = line_points
+	
+func id_draw_path(ids, unreachable = null):
+	path.clear()
+	
+	for id in ids:
+		var coordinates = astar.get_point_position(id)
+		path.set_cellv(coordinates,0)
+	
+	if unreachable != null:
+		for id in unreachable:
+			var coordinates = astar.get_point_position(id)
+			path.set_cellv(coordinates,1)
 
 func _input(event):
 		if event.is_action_pressed("EndTurn"):
@@ -47,15 +44,24 @@ func _input(event):
 
 func _unhandled_input(event):
 	var click_coordinates = get_global_mouse_position()
+	var start_point  = (current_unit.position/ MainCombatDemo.cell_size).floor()
+	var destination_point  = (click_coordinates/ MainCombatDemo.cell_size).floor()
+	var ap_limit = 5
+	
 	if event is InputEventMouseMotion:
-		var start_point  = (current_unit.position/ MainCombatDemo.cell_size).floor()
-		var destination_point  = (click_coordinates/ MainCombatDemo.cell_size).floor()
-		var points = calculate_point_path(start_point, destination_point)
-		draw_path(points)
-		
+		var path_data := astar.get_path_data(start_point, destination_point, ap_limit)
+		var reachable_cells = path_data.reachable_points
+		var unreachable_cells = path_data.unreachable_points
+		id_draw_path(reachable_cells, unreachable_cells)
+	
 	if event.is_action_pressed("LMB"):
-		pass
-		current_unit.move_object(click_coordinates)
+		var path_data := astar.get_path_data(start_point, destination_point, ap_limit)
+		if path_data.last_reachable >= 0:
+			var way_points = AStarAP.ids_to_world_coordinates(path_data.reachable_points)
+			current_unit.start_walking(way_points)
+			yield(current_unit,"StoppedWalking")
+#			var cell_coordinates = astar.get_point_position(path_data.last_reachable) * MainCombatDemo.cell_size
+#			current_unit.move_object(cell_coordinates)
 		
 
 func new_current_unit(number:int):
@@ -75,40 +81,8 @@ func end_turn():
 	else:
 		new_current_unit(0)
 
-# for use wtith a*
-func cell_int_index(vector: Vector2)->int:
-	return vector.y + vector.x * grid[0].size()
 	
 	
-func _add_and_connect_points() -> void:
-# First, we register all our points in the AStar graph.
-	for i in grid.size():
-		for j in grid[0].size():
-			var point = Vector2(i,j)
-			astar.add_point(cell_int_index(point), point)
-
-# Then, we loop over the points again, and we connect points if their cells don't have magma.
-	for i in grid.size():
-		for j in grid[0].size():
-			var point = Vector2(i,j)
-			var neighbouring_points = [
-				point + Vector2.UP,
-				point + Vector2.DOWN,
-				point + Vector2.LEFT,
-				point + Vector2.RIGHT,
-				
-				point + Vector2.UP + Vector2.LEFT,
-				point + Vector2.UP + Vector2.RIGHT,
-				point + Vector2.DOWN + Vector2.LEFT,
-				point + Vector2.DOWN + Vector2.RIGHT,
-				]
-			if !grid[point.x][point.y].is_magma:
-				for p in neighbouring_points:
-					var upper_threshold = p.x < grid.size() && p.y < grid[0].size()
-					var lower_threshold = p.x >= 0 && p.y >= 0
-					if upper_threshold && lower_threshold:
-						if !grid[p.x][p.y].is_magma:
-							astar.connect_points(cell_int_index(point), cell_int_index(p))
 
 
 func _ready():
@@ -137,7 +111,7 @@ func _ready():
 			grid[cell.x][cell.y].pieces.append(candidate)
 			candidate.connect("ObjectMoved", self, "ObjectMoved")
 	
-	_add_and_connect_points()
+	astar.add_and_connect_points(grid)
 	new_current_unit(0)
 	
 	

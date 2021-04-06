@@ -9,10 +9,20 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "AStar2D",
+"class": "AStarAP",
+"language": "GDScript",
+"path": "res://combat demo/scripts/AStarAP.gd"
+}, {
 "base": "Node2D",
 "class": "GridObject",
 "language": "GDScript",
 "path": "res://combat demo/GridObject.gd"
+}, {
+"base": "Reference",
+"class": "PathData",
+"language": "GDScript",
+"path": "res://combat demo/scripts/PathData.gd"
 }, {
 "base": "GridObject",
 "class": "Unit",
@@ -20,7 +30,9 @@ _global_script_classes=[ {
 "path": "res://combat demo/scripts/unit.gd"
 } ]
 _global_script_class_icons={
+"AStarAP": "",
 "GridObject": "",
+"PathData": "",
 "Unit": ""
 }
 
@@ -69,6 +81,16 @@ EndTurn={
 LMB={
 "deadzone": 0.5,
 "events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":1,"pressed":false,"doubleclick":false,"script":null)
+ ]
+}
+zoom_in={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":5,"pressed":false,"doubleclick":false,"script":null)
+ ]
+}
+zoom_out={
+"deadzone": 0.5,
+"events": [ Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"button_mask":0,"position":Vector2( 0, 0 ),"global_position":Vector2( 0, 0 ),"factor":1.0,"button_index":4,"pressed":false,"doubleclick":false,"script":null)
  ]
 }
 
