@@ -18,7 +18,8 @@ var state = unit_states.idle
 var is_active = false
 signal EndTurn
 signal StartTurn
-signal StoppedWalking
+signal StoppedMoving(grid_coordinates, obj)
+signal StartedMoving(grid_coordinates, obj)
 
 
 
@@ -45,6 +46,7 @@ func start_walking(new_path: PoolVector2Array)->void:
 	path = new_path
 	
 	animation_state.travel("Walk")
+	emit_signal("StartedMoving", grid_coordinates, self)
 	
 func _walk(delta):
 	if !path:
@@ -63,13 +65,14 @@ func _walk(delta):
 #	if velocity.length() > position.distance_to(target):
 #		position = target.position
 	position += velocity
+	update_grid_coordinates()
 
 func _stop_walking()->void:
 	state = unit_states.idle
 	path_index = 0
 	velocity = Vector2.ZERO
-	emit_signal("StoppedWalking")
-	print("stop")
+	emit_signal("StoppedMoving", grid_coordinates, self)
+	
 	
 	animation_state.travel("Idle")
 

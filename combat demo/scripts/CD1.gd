@@ -1,9 +1,9 @@
 extends Node2D
 
 
-var grid = []
+var grid = Grid.new()
 var units := []
-var current_unit
+var current_unit : Unit
 onready var magma = $PathBlocked
 onready var path = $Path
 onready var camera = $TestCamera
@@ -44,7 +44,7 @@ func _input(event):
 
 func _unhandled_input(event):
 	var click_coordinates = get_global_mouse_position()
-	var start_point  = (current_unit.position/ MainCombatDemo.cell_size).floor()
+	var start_point  = current_unit.grid_coordinates
 	var destination_point  = (click_coordinates/ MainCombatDemo.cell_size).floor()
 	var ap_limit = 5
 	
@@ -59,15 +59,17 @@ func _unhandled_input(event):
 		if path_data.last_reachable >= 0:
 			var way_points = AStarAP.ids_to_world_coordinates(path_data.reachable_points)
 			current_unit.start_walking(way_points)
-			yield(current_unit,"StoppedWalking")
+			yield(current_unit,"StoppedMoving")
 #			var cell_coordinates = astar.get_point_position(path_data.last_reachable) * MainCombatDemo.cell_size
 #			current_unit.move_object(cell_coordinates)
 		
 
 func new_current_unit(number:int):
 	if current_unit:
+		grid.set_cell_active(current_unit.grid_coordinates, false)
 		current_unit.end_turn()
 	current_unit = units[number]
+	grid.set_cell_active(current_unit.grid_coordinates)
 	current_unit.start_turn()
 
 
@@ -81,55 +83,54 @@ func end_turn():
 	else:
 		new_current_unit(0)
 
-	
-	
 
 
 func _ready():
-	var height = MainCombatDemo.map_size.y
-	var width = MainCombatDemo.map_size.x
+	var height = grid.height
+	var width = grid.width
+	
 	for x in range(width):
-		grid.append([])
 		for y in range(height):
 			var is_magma
 			if magma.get_cell(x,y) != -1:
 				is_magma = true
 			else:
 				is_magma = false
-			var cell = {
-				"is_magma" : is_magma,
-				"pieces" : [],
-			}
-			grid[x].append(cell)
+			grid.cells[x][y].is_magma = is_magma
 			
 	for candidate in $stuff.get_children():
 		if candidate is Unit:
 			units.append(candidate)
 			candidate.connect("EndTurn", self, "end_turn")
+			candidate.connect("StoppedMoving", grid, "EnterCell")
+			candidate.connect("StartedMoving", grid, "LeaveCell")
 		if candidate is GridObject:	
-			var cell = candidate.my_cell
-			grid[cell.x][cell.y].pieces.append(candidate)
-			candidate.connect("ObjectMoved", self, "ObjectMoved")
+			var cell = candidate.grid_coordinates
+			grid.cells[cell.x][cell.y].pieces.append(candidate)
+			candidate.connect("ObjectMoved", grid, "ObjectMoved")
 	
-	astar.add_and_connect_points(grid)
 	new_current_unit(0)
+	astar.grid = grid
+	astar.add_and_connect_points()
+	grid.connect("CellsChanged", astar, "update_graph")
 	
 	
+func _process(delta):
+	highlight_current()
+	var up = astar.get_unreachable_points()
+	for p in up:
+		path.set_cellv(p, 3)
 	
-func  ObjectMoved(start_cell,new_cell, obj):
-	grid[start_cell.x][start_cell.y].pieces.erase(obj)
-	grid[new_cell.x][new_cell.y].pieces.append(obj)
-	pass
-
-
-func print_cells_with_pieces():
-	for column in grid:
+	
+func highlight_current():
+	for column in grid.cells:
 		for cell in column:
-			if cell.pieces:
-				print("cell [" + str(grid.find(column)) + "]"
-				+ "[" + str(column.find(cell)) + "]"
-				+ str(cell.pieces)
-				)
+			if cell.selected:
+				path.set_cellv(cell.coordinates, 2)
+
+
+
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
