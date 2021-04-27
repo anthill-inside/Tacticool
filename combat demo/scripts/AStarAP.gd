@@ -125,7 +125,7 @@ func validate_point(point:Vector2)->bool:
 		for piece in grid.cells[point.x][point.y].pieces:
 			if piece is GridObject:
 				cell_is_valid = false
-	if grid.cells[point.x][point.y].selected:
+	if grid.cells[point.x][point.y] == grid.current_cell:
 		cell_is_valid = true
 	return cell_is_valid
 
@@ -183,6 +183,8 @@ func get_path_data (start_point: Vector2, destination_point: Vector2, ap_limit: 
 	new_data.total_cost = ap_counter_total
 	new_data.last_reachable_cost = ap_counter
 	new_data.last_reachable = reachable_cells[-1] if reachable_cells else -1
+	if  start_point == destination_point:
+		new_data.last_reachable = all_cells[0]
 	return new_data
 
 # Called when the node enters the scene tree for the first time.

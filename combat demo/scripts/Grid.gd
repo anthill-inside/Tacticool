@@ -5,6 +5,10 @@ var height
 var width
 var cells = []
 
+#cell of the selected unit
+var current_cell : Cell
+
+
 # Called when the node enters the scene tree for the first time.
 func _init():
 	height = MainCombatDemo.map_size.y
@@ -25,18 +29,27 @@ func  ObjectMoved(start_cell,new_cell, obj):
 
 func LeaveCell(cell, obj):
 	cells[cell.x][cell.y].pieces.erase(obj)
-	cells[cell.x][cell.y].selected = false
 	emit_signal("CellsChanged",[cell])
 	
 func EnterCell(cell, obj):
 	cells[cell.x][cell.y].pieces.append(obj)
 	if obj.is_active:
-		cells[cell.x][cell.y].selected = true
+		set_cell_active(cell)
+#		if obj is Unit:
+#			obj.current_ap -= 1
 	emit_signal("CellsChanged",[cell])
 
-func set_cell_active(cell:Vector2, value := true)->void:
-	cells[cell.x][cell.y].selected = value
+func remove_object(cell, obj):
+	cells[cell.x][cell.y].pieces.erase(obj)
 	emit_signal("CellsChanged",[cell])
+
+func set_cell_active(cell:Vector2)->void:
+	var cell_array := [cell]
+	if current_cell:
+		cell_array.append(current_cell.coordinates)
+	current_cell = cells[cell.x][cell.y]
+	
+	emit_signal("CellsChanged",cell_array)
 func print_cells_with_pieces():
 	for column in cells:
 		for cell in column:

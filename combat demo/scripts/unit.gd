@@ -3,23 +3,21 @@ class_name Unit
 
 onready var animation_state_machine = $AnimationTree.get("parameters/playback")
 
-enum unit_states {
-	idle,
-	walk
-}
+
 
 
 onready var animation_tree = $AnimationTree
 onready var animation_player = $AnimationPlayer
+onready var state_machine = $StateMachine
 onready var animation_state = animation_tree.get("parameters/playback")
 
-var state = unit_states.idle
 
 var is_active = false
 signal EndTurn
 signal StartTurn
 signal StoppedMoving(grid_coordinates, obj)
 signal StartedMoving(grid_coordinates, obj)
+signal Dead(grid_coordinates, obj)
 
 
 
@@ -32,49 +30,31 @@ var velocity = Vector2.ZERO
 var direction = Vector2.DOWN
 
 
+export var max_ap := 5
+export var current_ap := 5
+export var max_health := 3
+export var current_health :=3
 
-func _physics_process(delta):
-	if state == unit_states.walk:
-		_walk(delta)
+var attack = {"damage": 2, "cost": 2}
 
 
+func _process(delta):
+	if current_health <= 0:
+		state_machine.clear_state_queue()
+		state_machine.push_state("Dead", {})
 
-func start_walking(new_path: PoolVector2Array)->void:
-	state = unit_states.walk
-	path_index = 0
-	velocity = Vector2.ZERO
-	path = new_path
+func _input(event):
+	if event.is_action_pressed("toggle_atack"):
+		if animation_state.get_current_node() == "Idle":
+			animation_state.travel("Attack")
+		elif  animation_state.get_current_node() == "Attack":
+			animation_state.travel("Idle")
+
+func change_direction(new_direction):
+	animation_tree.set("parameters/Walk/blend_position", new_direction)
+	animation_tree.set("parameters/Idle/blend_position", new_direction)
+	animation_tree.set("parameters/Attack/blend_position", new_direction)
 	
-	animation_state.travel("Walk")
-	emit_signal("StartedMoving", grid_coordinates, self)
-	
-func _walk(delta):
-	if !path:
-		return
-	var target = path[path_index]
-	if position.distance_to(target) < velocity.length() :
-		path_index += 1
-		if path_index == path.size():
-			_stop_walking()
-			return
-		target = path[path_index]
-	velocity = (target - position).normalized() * move_speed * delta
-	var animation_direction = velocity.normalized()
-	animation_direction.y *= -1
-	animation_tree.set("parameters/Walk/blend_position", animation_direction)
-#	if velocity.length() > position.distance_to(target):
-#		position = target.position
-	position += velocity
-	update_grid_coordinates()
-
-func _stop_walking()->void:
-	state = unit_states.idle
-	path_index = 0
-	velocity = Vector2.ZERO
-	emit_signal("StoppedMoving", grid_coordinates, self)
-	
-	
-	animation_state.travel("Idle")
 
 
 func end_turn():
