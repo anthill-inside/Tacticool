@@ -16,8 +16,6 @@ func handle_input(_event: InputEvent) -> void:
 func update(_delta: float) -> void:
 	timer += _delta
 	if timer >= animation_length:
-		unit.animation_state.travel("Idle")
-		yield(get_tree().create_timer(0.6), "timeout")
 		state_machine.transition_next()
 	
 func physics_update(_delta: float) -> void:

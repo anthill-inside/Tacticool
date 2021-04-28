@@ -185,6 +185,8 @@ func get_path_data (start_point: Vector2, destination_point: Vector2, ap_limit: 
 	new_data.last_reachable = reachable_cells[-1] if reachable_cells else -1
 	if  start_point == destination_point:
 		new_data.last_reachable = all_cells[0]
+	if unreachable_cells:
+		new_data.last_reachable = all_cells[0]
 	return new_data
 
 # Called when the node enters the scene tree for the first time.
