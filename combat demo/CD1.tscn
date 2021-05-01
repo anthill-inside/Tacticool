@@ -410,15 +410,17 @@ tile_data = PoolIntArray( -262149, 0, 0, -262148, 0, 0, -262147, 0, 0, -262146, 
 
 [node name="stuff" type="YSort" parent="."]
 
-[node name="units" type="Node" parent="stuff"]
-
-[node name="objects" type="Node" parent="stuff"]
-
 [node name="Unit" parent="stuff" instance=ExtResource( 3 )]
-position = Vector2( 398.141, 211.673 )
+position = Vector2( 399.401, 211.043 )
+
+[node name="Unit4" parent="stuff" instance=ExtResource( 3 )]
+position = Vector2( 685.403, 305.537 )
+
+[node name="Unit3" parent="stuff" instance=ExtResource( 3 )]
+position = Vector2( 176.395, 335.145 )
 
 [node name="Unit2" parent="stuff" instance=ExtResource( 3 )]
-position = Vector2( 434.134, 209.393 )
+position = Vector2( 494.61, 108.599 )
 
 [node name="Chair-right" parent="stuff" instance=ExtResource( 5 )]
 position = Vector2( 430.979, 173.82 )

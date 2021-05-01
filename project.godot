@@ -76,6 +76,10 @@ config/icon="res://icon.png"
 
 MainCombatDemo="*res://combat demo/scripts/MainCombatDemo.gd"
 
+[display]
+
+window/size/fullscreen=true
+
 [editor_plugins]
 
 enabled=PoolStringArray(  )

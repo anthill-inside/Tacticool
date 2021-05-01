@@ -159,7 +159,10 @@ func draw_path():
 			if path_data:
 				var reachable_cells = path_data.reachable_points
 				var unreachable_cells = path_data.unreachable_points
-				id_draw_attack_path(reachable_cells, unreachable_cells, path_data.last_reachable, destination_point)
+				if current_unit.current_ap - path_data.last_reachable_cost >= current_unit.attack.cost:
+					id_draw_attack_path(reachable_cells, unreachable_cells, path_data.last_reachable, destination_point)
+				else:
+					id_draw_path(reachable_cells, unreachable_cells)
 				return
 			
 	

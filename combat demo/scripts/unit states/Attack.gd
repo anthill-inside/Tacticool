@@ -45,7 +45,7 @@ func enter(_msg := {}) -> void:
 
 func exit() -> void:
 	
-	target.current_health -= damage
+	target.get_damage(damage)
 #	
 #	yield(get_tree().create_timer(1), "timeout")
 	

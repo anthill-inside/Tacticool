@@ -10,6 +10,17 @@ onready var animation_tree = $AnimationTree
 onready var animation_player = $AnimationPlayer
 onready var state_machine = $StateMachine
 onready var animation_state = animation_tree.get("parameters/playback")
+var health_bar 
+var action_bar 
+
+func _ready():
+	health_bar = $HealthBar
+	health_bar.max_value = max_health
+	health_bar.value = current_health
+	action_bar = $ActionBar
+	action_bar.max_value = max_ap
+	action_bar.value = current_ap
+
 
 
 var is_active = false
@@ -37,18 +48,18 @@ export var current_health :=3
 
 var attack = {"damage": 2, "cost": 2}
 
-
-func _process(delta):
+func get_damage(damage):
+	current_health -= damage
 	if current_health <= 0:
-		state_machine.clear_state_queue()
-		state_machine.push_state("Dead", {})
+		die()
+	else:
+		health_bar.value = current_health
 
-func _input(event):
-	if event.is_action_pressed("toggle_atack"):
-		if animation_state.get_current_node() == "Idle":
-			animation_state.travel("Attack")
-		elif  animation_state.get_current_node() == "Attack":
-			animation_state.travel("Idle")
+func die():
+	state_machine.clear_state_queue()
+	state_machine.push_state("Dead", {})
+	health_bar.hide()
+
 
 func change_direction(new_direction):
 	animation_tree.set("parameters/Walk/blend_position", new_direction)
