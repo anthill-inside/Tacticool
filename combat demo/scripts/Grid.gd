@@ -8,6 +8,12 @@ var cells = []
 #cell of the selected unit
 var current_cell : Cell
 
+func validate_point(point: Vector2)->bool:
+	if point.x >= width: return false
+	if point.x < 0: return false
+	if point.y >= height: return false
+	if point.y < 0: return false
+	return true
 
 # Called when the node enters the scene tree for the first time.
 func _init():

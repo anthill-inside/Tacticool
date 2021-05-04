@@ -147,31 +147,32 @@ func draw_path():
 	var start_point  = current_unit.grid_coordinates
 	var destination_point  = (get_global_mouse_position()/ MainCombatDemo.cell_size).floor()
 	
-	var target_cell = grid.cells[destination_point.x][destination_point.y]
-	var target  = null
-	
-	for piece in target_cell.pieces:
-		if not piece.get("current_health") == null:
-			target = piece
-			if target == current_unit:
-				return
-			var path_data = get_path_data_to_closest_adjacent_point(start_point, destination_point)
-			if path_data:
-				var reachable_cells = path_data.reachable_points
-				var unreachable_cells = path_data.unreachable_points
-				if current_unit.current_ap - path_data.last_reachable_cost >= current_unit.attack.cost:
-					id_draw_attack_path(reachable_cells, unreachable_cells, path_data.last_reachable, destination_point)
-				else:
-					id_draw_path(reachable_cells, unreachable_cells)
-				return
-			
-	
-	
-	
-	var path_data := astar.get_path_data(start_point, destination_point, current_unit.current_ap)
-	var reachable_cells = path_data.reachable_points
-	var unreachable_cells = path_data.unreachable_points
-	id_draw_path(reachable_cells, unreachable_cells)
+	if grid.validate_point(destination_point):
+		var target_cell = grid.cells[destination_point.x][destination_point.y]
+		var target  = null
+		
+		for piece in target_cell.pieces:
+			if not piece.get("current_health") == null:
+				target = piece
+				if target == current_unit:
+					return
+				var path_data = get_path_data_to_closest_adjacent_point(start_point, destination_point)
+				if path_data:
+					var reachable_cells = path_data.reachable_points
+					var unreachable_cells = path_data.unreachable_points
+					if current_unit.current_ap - path_data.last_reachable_cost >= current_unit.attack.cost:
+						id_draw_attack_path(reachable_cells, unreachable_cells, path_data.last_reachable, destination_point)
+					else:
+						id_draw_path(reachable_cells, unreachable_cells)
+					return
+				
+		
+		
+		
+		var path_data := astar.get_path_data(start_point, destination_point, current_unit.current_ap)
+		var reachable_cells = path_data.reachable_points
+		var unreachable_cells = path_data.unreachable_points
+		id_draw_path(reachable_cells, unreachable_cells)
 	
 #func draw_path(points):
 #	path.clear()

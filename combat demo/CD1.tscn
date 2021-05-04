@@ -426,7 +426,7 @@ position = Vector2( 494.61, 108.599 )
 position = Vector2( 430.979, 173.82 )
 
 [node name="Chair-right2" parent="stuff" instance=ExtResource( 5 )]
-position = Vector2( 366.69, 142.866 )
+position = Vector2( 363.326, 83.1625 )
 
 [node name="Path" type="TileMap" parent="."]
 modulate = Color( 1, 1, 1, 0.4 )
