@@ -930,7 +930,6 @@ __meta__ = {
 }
 
 [node name="ActionBar" type="ProgressBar" parent="."]
-visible = false
 margin_left = -13.908
 margin_top = -63.2783
 margin_right = 14.092

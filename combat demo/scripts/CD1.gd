@@ -20,7 +20,7 @@ func allow_control():
 
 
 func _input(event):
-		if event.is_action_pressed("EndTurn"):
+		if event.is_action_pressed("EndTurn") && !current_unit.state_machine.state_queue && current_unit.state_machine.state.name == "Idle":
 			end_turn()
 		if event.is_action_pressed("ReloadLevel"):
 			get_tree().reload_current_scene()
@@ -60,6 +60,8 @@ func approach_point(start_point: Vector2, destination_point: Vector2):
 	return path_data
 	
 func move_to_point(start_point: Vector2, destination_point: Vector2):
+	
+	
 	var path_data := astar.get_path_data(start_point, destination_point, current_unit.current_ap)
 	path_to_state_queue(path_data)
 	return path_data
@@ -83,7 +85,7 @@ func new_current_unit(number:int):
 
 
 func end_turn():
-	current_unit.current_ap = current_unit.max_ap
+	
 	
 	var unit_number : = units.find(current_unit)
 	if unit_number > -1:
@@ -93,6 +95,8 @@ func end_turn():
 			new_current_unit(0)
 	else:
 		new_current_unit(0)
+		
+	current_unit.current_ap = current_unit.max_ap
 
 func kill_unit(grid_coordinates, obj):
 	units.erase(obj)

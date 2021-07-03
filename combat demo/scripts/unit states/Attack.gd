@@ -1,6 +1,8 @@
 extends UnitState
 
-
+var projectile = preload("res://combat demo/objects/Projectile.tscn")
+enum ATTACK_TYPES {melee,ranged_projectyle, ranged_instant}
+var attack_type = ATTACK_TYPES.ranged_projectyle
 
 var target
 
@@ -44,8 +46,12 @@ func enter(_msg := {}) -> void:
 	
 
 func exit() -> void:
-	
-	target.get_damage(damage)
+	if attack_type != ATTACK_TYPES.ranged_projectyle:
+		target.get_damage(damage)
+	else:
+		var projectileInstance = projectile. instance()
+		projectileInstance. position = state_machine.unit.position
+		add_child(projectileInstance)
 #	
 #	yield(get_tree().create_timer(1), "timeout")
 	
